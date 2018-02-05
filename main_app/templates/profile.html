@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="col-md-12">
+<h1>Profil von {{ username }}</h1>
+</div>
+
+<div class="col-md-8">
+        <div class="richierechner panel panel-default">
+            <div class="panel-heading">
+                Meine Ausgaben
+            </div>
+            <div class="panel-body">
+                <table class="table table-inverse">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Datum</th>
+                            <th>Wert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ausgabe in ausgaben %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ ausgabe.datum }}</td>
+                            <td>{{ ausgabe.wert }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

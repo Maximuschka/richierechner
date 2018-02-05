@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<div class="col-md-3">
+    <div class="richierechner panel panel-default">
+        <div class="panel-heading">
+            Ausgaben MBW
+        </div>
+        <div class="panel-body">
+            <table class="table table-inverse">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Ausgaben</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in MBW_ausgaben %}
+                    <tr>
+                        <td>{{ item.0 }}</td>
+                        <td >{{ item.1 }} €</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <thead>
+                    <tr>
+                        <th>Gesamt</th>
+                        <th>{{ summe_MBW_ausgaben }} €</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-9">
+    <div class="richierechner panel panel-default">
+        <div class="panel-heading">Zeitraum:</div>
+        <div class="panel-body">
+            <form action="/" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="Submit"/>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="col-md-4">
+    <div class="richierechner panel panel-default">
+        <div class="panel-heading">
+            Ausgaben
+        </div>
+        <div class="panel-body">
+            <table class="table table-inverse">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Datum</th>
+                        <th>Bezahlt</th>
+                        <th>Wert</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ausgabe in ausgaben %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ ausgabe.datum }}</td>
+                        <td>{{ ausgabe.mitbewohni.username }}</td>
+                        <td>{{ ausgabe.wert }} €</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <thead>
+                    <tr>
+                        <th colspan="3">Gesamt</th>
+                        <th>{{ summe_ausgaben }} €</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="col-md-5">
+    <div class="richierechner panel panel-default">
+        <div class="panel-heading">
+            Ausgleichszahlungen
+        </div>
+        <div class="panel-body">
+            <table class="table table-inverse">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Datum</th>
+                        <th>Von</th>
+                        <th>An</th>
+                        <th>Wert</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for agz in agzs %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ agz.datum }}</td>
+                        <td>{{ agz.von.username }}</td>
+                        <td>{{ agz.an.username }}</td>
+                        <td>{{ agz.wert }} €</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

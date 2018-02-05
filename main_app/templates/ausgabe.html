@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+
+<div class="col-md-4">
+    <div class="richierechner panel panel-default">
+        <div class="panel-heading">
+            Neue Ausgabe
+        </div>
+        <div class="panel-body">
+            <form action="post_ausgabe/" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+            <input type="submit" value="Submit"/>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-8">
+    <div class="richierechner panel panel-default">
+        <div class="panel-heading">
+            Letzte Ausgaben
+        </div>
+        <div class="panel-body">
+            <table class="table table-inverse">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Datum</th>
+                        <th>Bezahlt von</th>
+                        <th>Wert</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ausgabe in letzte_ausgaben %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ ausgabe.datum }}</td>
+                        <td>{{ ausgabe.mitbewohni.username }}</td>
+                        <td>{{ ausgabe.wert }} €</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

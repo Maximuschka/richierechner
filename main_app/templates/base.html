@@ -1,0 +1,59 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Richie-Rechner</title>
+        <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'styles.css' %}" rel="stylesheet">
+    </head>
+
+    <body>
+        
+        <nav class="navbar navbar-default navbar-static-top text-center">
+            <div class="col-md-12"><h1 align="center">Richie-Rechner</h1></div>
+            <a href="/">
+            <img src="{% static 'images/banner2.jpg' %}" alt="Richie-Rechner" height=120>
+            </a>
+            
+        </nav>
+
+        <div class="col-md-12">
+            <div class="container">
+                <nav class="navbar">
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                        <div class="navbar-nav navbar-light bg-faded">
+                            {% if user.is_authenticated %}
+
+                            <ul>
+                                
+                                <li><a href=/>Übersicht</a></li>
+                                <li><a href=/ausgabe>Ausgabe</a></li>
+                                <li><a href=/ausgleichszahlung>Ausgleichszahlung</a></li>
+                                <li><a href="{% url 'profile' user.username %}">Profil</a></li>
+                                <li><a href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <main class="container" role="main">
+
+            {% block content %}
+            {% endblock %}
+
+        </main>
+
+    </body>
+
+    <footer class="footer container text-center" role="contentinfo">
+        <img src="{% static 'images/value-icon.png' %}" height="50" alt="">
+        © Maximaus 2018
+        <img src="{% static 'images/value-icon.png' %}" height="50" alt="">
+    </footer>
+
+</html>
