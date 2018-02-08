@@ -41,7 +41,7 @@
                         <td>{{ ausgabe.datum }}</td>
                         <td>{{ ausgabe.mitbewohni.username }}</td>
                         <td>{{ ausgabe.wert }} €</td>
-                        <td><a href="/delete_ausgabe/{{agz.id}}/a"><img src="{% static 'images/delete.png' %}" alt="L" ></a></td>
+                        <td><a href="/delete_ausgabe/{{ ausgabe.id }}/a"><img src="{% static 'images/delete.png' %}" alt="L" ></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

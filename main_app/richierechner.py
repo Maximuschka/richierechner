@@ -48,7 +48,7 @@ def getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben=[],agzs=[]):
     noetige_agzs = []
     for mitbewohni in mitbewohnis:
         if book[mitbewohni] < 0:
-            while abs(book[mitbewohni]) >= 0.01:                        #in der elif Bedinung kann Schuldbetrag nicht = 0 werden. Daher diese Bedingung
+            while abs(book[mitbewohni]) >= 0.01:                        #in der elif Bedinung kann Schuldbetrag uU != 0 bleiben. Daher diese Bedingung
                 largest_creditor = max(book, key=lambda key: book[key])
                 if abs(book[mitbewohni]) <= book[largest_creditor]:     #Schuldbetrag ist kleiner als der Betrag der dem größten Gläubiger geschuldet wird
                     if abs(book[mitbewohni]) > 0.01:
