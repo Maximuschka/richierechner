@@ -32,39 +32,32 @@ def getMBWAusgabenDJANGO(mitbewohnis=[],ausgaben=[],agzs=[]):
 
 def getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben=[],agzs=[]):
     book = {}
-    for mitbewohni in mitbewohnis:                                  #Alle Mitbewohnis erhalten einen Salodeintrag = 0
+    for mitbewohni in mitbewohnis:                                      #Alle Mitbewohnis erhalten einen Saldoeintrag = 0
         book[mitbewohni] = 0
-    for ausgabe in ausgaben:                                        #Jede Ausgabe wird einem mitbewohni als Kredit zugeordnet (Anteil * Anzahl der anderen MBWs)
+    for ausgabe in ausgaben:                                            #Saldoberechnung AUSG - Jede Ausgabe wird einem mitbewohni als Kredit zugeordnet (Anteil * Anzahl der anderen MBWs)
         ausgabe.wert = float(ausgabe.wert)
         anteil = ausgabe.wert / len(mitbewohnis)
         book[ausgabe.mitbewohni] += anteil * (len(mitbewohnis)-1)
-        for mitbewohni in mitbewohnis:                              #Jede Ausgabe wird den verbleibenden mitbewohnis als anteilige Schuld zugeordnet
+        for mitbewohni in mitbewohnis:                                  #Jede Ausgabe wird den verbleibenden mitbewohnis als anteilige Schuld zugeordnet
             if mitbewohni != ausgabe.mitbewohni:
                 book[mitbewohni] -= anteil
                 book[mitbewohni] = book[mitbewohni]
-    for agz in agzs:                                                #Jede agz wird als Kredit bzw. Schuld dem jeweilige mitbewohni zugeordnet
+    for agz in agzs:                                                    #Saldoberechnung AGZ - Jede agz wird als Kredit bzw. Schuld dem jeweilige mitbewohni zugeordnet
         book[agz.von] += float(agz.wert)
         book[agz.an] -= float(agz.wert)
     noetige_agzs = []
     for mitbewohni in mitbewohnis:
-        print("1")
         if book[mitbewohni] < 0:
-            print("2")
-            while abs(book[mitbewohni]) >= 0.01:
+            while abs(book[mitbewohni]) >= 0.01:                        #in der elif Bedinung kann Schuldbetrag nicht = 0 werden. Daher diese Bedingung
                 largest_creditor = max(book, key=lambda key: book[key])
-                print(abs(book[mitbewohni]))
-                print(book[largest_creditor])
-
-                if abs(book[mitbewohni]) <= book[largest_creditor]:
-                    print("3")
+                if abs(book[mitbewohni]) <= book[largest_creditor]:     #Schuldbetrag ist kleiner als der Betrag der dem größten Gläubiger geschuldet wird
                     if abs(book[mitbewohni]) > 0.01:
                         f = abs(book[mitbewohni])
                         d = round(Decimal(f),2)
                         noetige_agzs.append((mitbewohni,largest_creditor,d))
                     book[largest_creditor] += book[mitbewohni]
                     book[mitbewohni] = 0
-                elif abs(book[mitbewohni]) > book[largest_creditor]:
-                    print("4")
+                elif abs(book[mitbewohni]) > book[largest_creditor]:    #Schuldbetrag ist größer als der Betrag der dem größten Gläubiger geschuldet wird
                     if book[largest_creditor] > 0.01:
                         f = abs(book[largest_creditor])
                         d = round(Decimal(f),2)
@@ -73,58 +66,9 @@ def getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben=[],agzs=[]):
                     book[largest_creditor] = 0
                 else:
                     print("FEHLER IN NOETIGE AGZS!!!")
-    print(book)
-    print(noetige_agzs)
+                    noetige_agzs.append("FEHLER IN NOETIGE AGZS!!!")
+                    break
     return noetige_agzs
-
-# def getNoetigeAusgleichszahlungenDJANGO(mitbewohnis=[],ausgaben=[],agzs=[]):
-#     agzs = getNoetigeAusgleichszahlungen(mitbewohnis,ausgaben,agzs)
-
-#     agzsDJANGO = []
-
-#     for agz in agzs:
-#         if agz[1] != agz[2]:
-#             if agz[0] > 0:
-#                 agzsDJANGO.append((agz[2].username,agz[1].username,agz[0]))
-#             elif agz[0] < 0:
-#                 agzsDJANGO.append((agz[1].username,agz[2].username,agz[0]*(-1)))
-#     return agzsDJANGO
-
-# def getNoetigeAusgleichszahlungen(mitbewohnis=[],ausgaben=[],agzs=[]):
-
-#     """Berechnet die nötigen Ausgleichsszahlungen. Werte kleiner als 5 Cent werden vernachlässigt."""
-
-#     saldo = getSaldoListe(mitbewohnis,ausgaben,agzs)
-#     ausgleichszahlungen = []
-#     for item in saldo:
-#         if item[0] > 0:
-#             zahlung = (item[0])
-#             item[0] = 0
-#             saldo[-1][0] += zahlung
-#             ausgleichszahlungen.append((zahlung,item[1],saldo[-1][1]))
-#         elif item[0] < 0:
-#             zahlung = item[0]
-#             item[0] = 0
-#             saldo[-1][0] -= zahlung
-#             ausgleichszahlungen.append((zahlung,item[1],saldo[-1][1]))
-#     return ausgleichszahlungen
-
-# def getSaldoListe(mitbewohnis,ausgaben,agzs):
-#     saldo = []
-#     c = len(mitbewohnis)
-#     for MBW in mitbewohnis:
-#         saldo.append([getSaldoMBW(MBW,ausgaben, agzs, c),MBW])
-#     return sorted(saldo, key =  lambda x: x[0], reverse=True)
-
-# def getSaldoMBW(MBW, ausgaben, agzs, c):
-#     MBW_ausgaben = getMBWAusgaben(MBW, ausgaben, agzs)
-#     anteil = getAnteil(ausgaben,c)
-#     return MBW_ausgaben - anteil
-    
-#     return self.getMBWAusgaben(MBW)-self.getAnteil(summiereAusgaben(ausgaben))
-
-# def getAnteil(ausgaben,c):
-#     return round(summiereAusgaben(ausgaben)/c,2)
 
 def getStartDatum():
     erste_ausgabe = Ausgabe.objects.all().order_by("datum")[0]
