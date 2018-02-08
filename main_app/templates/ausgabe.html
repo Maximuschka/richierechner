@@ -31,6 +31,7 @@
                         <th>Datum</th>
                         <th>Bezahlt von</th>
                         <th>Wert</th>
+                        <th><a href="/ausgabe/note_ausgabe/0"><img src="{% static 'images/note.png' %}" alt="N" ></a></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -41,7 +42,15 @@
                         <td>{{ ausgabe.datum }}</td>
                         <td>{{ ausgabe.mitbewohni.username }}</td>
                         <td>{{ ausgabe.wert }} €</td>
+                        <td><a href="/ausgabe/note_ausgabe/{{ ausgabe.id }}"><img src="{% static 'images/note.png' %}" alt="N" ></a></td>
                         <td><a href="/delete_ausgabe/{{ ausgabe.id }}/a"><img src="{% static 'images/delete.png' %}" alt="L" ></a></td>
+                        {% if notiz_ausgabe_id == ausgabe.id or notiz_ausgabe_id == 0 %}
+                        <tr>
+                            <td></td>
+                            <td align="right">Notiz:</td>
+                            <td colspan="4">{{ ausgabe.notiz }}</td>
+                        </tr>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

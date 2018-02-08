@@ -9,9 +9,7 @@ from .forms import AusgabeForm, AusgleichszahlungForm, LoginForm, OverviewForm
 from .richierechner import *
 
 @login_required(login_url='/login/')
-def overview(request):
-    # if not request.user.is_authenticated:
-    #     return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+def overview(request,notiz_ausgabe_id=None):
 
     if request.method == "POST":
         form = OverviewForm(request.POST)
@@ -43,13 +41,15 @@ def overview(request):
     return render(request, "overview.html", {"form": form,
                                                 "mitbewohnis":mitbewohnis,
                                                 "ausgaben": ausgaben,
+                                                "notiz_ausgabe_id": notiz_ausgabe_id,
                                                 "agzs": agzs,
                                                 "summe_ausgaben": summe_ausgaben,
                                                 "MBW_ausgaben": MBW_ausgaben,
                                                 "summe_MBW_ausgaben": summe_MBW_ausgaben})
 
 @login_required(login_url='/login/')
-def ausgabe(request):
+def ausgabe(request,notiz_ausgabe_id=None):
+
     letzte_ausgaben = Ausgabe.objects.filter().order_by("-datum")[:5]
 
     user = request.user
@@ -60,6 +60,7 @@ def ausgabe(request):
     form = AusgabeForm(initial={"mitbewohni":user})
 
     return render(request, "ausgabe.html",{"letzte_ausgaben": letzte_ausgaben,
+                                            "notiz_ausgabe_id": notiz_ausgabe_id,
                                             "form": form})
 
 @login_required(login_url='/login/')
@@ -109,6 +110,9 @@ def delete_agz(request,agz_id,origin_id):
         return HttpResponseRedirect("/ausgleichszahlung")
     if origin_id == "o":
         return HttpResponseRedirect("/")
+
+# def note_ausgabe(request,ausgabe_id,origin_id):
+
 
 def login_view(request):
     if request.method == "POST":
