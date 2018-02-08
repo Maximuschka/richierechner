@@ -3,7 +3,20 @@
 
 {% block content %}
 
-<div class="col-md-3">
+<div class="col-md-12">
+    <div class="richierechner panel panel-default">
+        <div class="panel-heading">Zeitraum:</div>
+        <div class="panel-body">
+            <form action="/" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="Submit"/>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-5">
     <div class="richierechner panel panel-default">
         <div class="panel-heading">
             Ausgaben MBW
@@ -35,19 +48,7 @@
     </div>
 </div>
 
-<div class="col-md-9">
-    <div class="richierechner panel panel-default">
-        <div class="panel-heading">Zeitraum:</div>
-        <div class="panel-body">
-            <form action="/" method="post">
-                {% csrf_token %}
-                {{ form }}
-                <input type="submit" value="Submit"/>
-            </form>
-        </div>
-    </div>
-</div>
-<div class="col-md-4">
+<div class="col-md-7">
     <div class="richierechner panel panel-default">
         <div class="panel-heading">
             Ausgaben
@@ -69,6 +70,7 @@
                         <td>{{ ausgabe.datum }}</td>
                         <td>{{ ausgabe.mitbewohni.username }}</td>
                         <td>{{ ausgabe.wert }} €</td>
+                        <td><a href="/delete_ausgabe/{{ausgabe.id}}/o"><img src="{% static 'images/delete.png' %}" alt="L" ></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -82,7 +84,8 @@
         </div>
     </div>
 </div>
-<div class="col-md-5">
+
+<div class="col-md-7 col-md-offset-5">
     <div class="richierechner panel panel-default">
         <div class="panel-heading">
             Ausgleichszahlungen
@@ -106,6 +109,7 @@
                         <td>{{ agz.von.username }}</td>
                         <td>{{ agz.an.username }}</td>
                         <td>{{ agz.wert }} €</td>
+                        <td><a href="/delete_agz/{{ausgabe.id}}/o"><img src="{% static 'images/delete.png' %}" alt="L" ></a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

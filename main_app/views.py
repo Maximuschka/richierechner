@@ -69,6 +69,7 @@ def ausgleichszahlung(request):
     mitbewohnis = User.objects.all().exclude(is_superuser=True)
     ausgaben = Ausgabe.objects.all().order_by("datum")
     agzs = Ausgleichszahlung.objects.all().order_by("datum")
+    noetige_agzs = None
     noetige_agzs = getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben,agzs)
 
     form = AusgleichszahlungForm()
@@ -94,6 +95,20 @@ def post_ausgleichszahlung(request):
     if form.is_valid():
         form.save(commit=True)
     return HttpResponseRedirect("/ausgleichszahlung/")
+
+def delete_ausgabe(request,ausgabe_id,origin_id):
+    Ausgabe.objects.filter(id=ausgabe_id).delete()
+    if origin_id == "a":
+        return HttpResponseRedirect("/ausgabe")
+    if origin_id == "o":
+        return HttpResponseRedirect("/")
+
+def delete_agz(request,agz_id,origin_id):
+    Ausgleichszahlung.objects.filter(id=agz_id).delete()
+    if origin_id == "a":
+        return HttpResponseRedirect("/ausgleichszahlung")
+    if origin_id == "o":
+        return HttpResponseRedirect("/")
 
 def login_view(request):
     if request.method == "POST":

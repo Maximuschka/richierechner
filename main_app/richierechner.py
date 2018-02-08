@@ -30,40 +30,50 @@ def getMBWAusgabenDJANGO(mitbewohnis=[],ausgaben=[],agzs=[]):
         MBW_ausgaben.append((MBW.username,dummy_ausgaben))
     return MBW_ausgaben
 
-def getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben,agzs):
+def getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben=[],agzs=[]):
     book = {}
-    for mitbewohni in mitbewohnis:
+    for mitbewohni in mitbewohnis:                                  #Alle Mitbewohnis erhalten einen Salodeintrag = 0
         book[mitbewohni] = 0
-    for ausgabe in ausgaben:
+    for ausgabe in ausgaben:                                        #Jede Ausgabe wird einem mitbewohni als Kredit zugeordnet (Anteil * Anzahl der anderen MBWs)
         ausgabe.wert = float(ausgabe.wert)
         anteil = ausgabe.wert / len(mitbewohnis)
         book[ausgabe.mitbewohni] += anteil * (len(mitbewohnis)-1)
-        for mitbewohni in mitbewohnis:
+        for mitbewohni in mitbewohnis:                              #Jede Ausgabe wird den verbleibenden mitbewohnis als anteilige Schuld zugeordnet
             if mitbewohni != ausgabe.mitbewohni:
                 book[mitbewohni] -= anteil
                 book[mitbewohni] = book[mitbewohni]
-    for agz in agzs:
+    for agz in agzs:                                                #Jede agz wird als Kredit bzw. Schuld dem jeweilige mitbewohni zugeordnet
         book[agz.von] += float(agz.wert)
         book[agz.an] -= float(agz.wert)
     noetige_agzs = []
     for mitbewohni in mitbewohnis:
+        print("1")
         if book[mitbewohni] < 0:
-            while book[mitbewohni] != 0:
-                largest_creditor = max(book, key=lambda key: book[key]) 
+            print("2")
+            while abs(book[mitbewohni]) >= 0.01:
+                largest_creditor = max(book, key=lambda key: book[key])
+                print(abs(book[mitbewohni]))
+                print(book[largest_creditor])
+
                 if abs(book[mitbewohni]) <= book[largest_creditor]:
+                    print("3")
                     if abs(book[mitbewohni]) > 0.01:
                         f = abs(book[mitbewohni])
                         d = round(Decimal(f),2)
                         noetige_agzs.append((mitbewohni,largest_creditor,d))
                     book[largest_creditor] += book[mitbewohni]
                     book[mitbewohni] = 0
-                else:
+                elif abs(book[mitbewohni]) > book[largest_creditor]:
+                    print("4")
                     if book[largest_creditor] > 0.01:
                         f = abs(book[largest_creditor])
                         d = round(Decimal(f),2)
                         noetige_agzs.append((mitbewohni,largest_creditor,d))
                     book[mitbewohni] += book[largest_creditor]
                     book[largest_creditor] = 0
+                else:
+                    print("FEHLER IN NOETIGE AGZS!!!")
+    print(book)
     print(noetige_agzs)
     return noetige_agzs
 
