@@ -7,13 +7,11 @@ import datetime
 
 class AusgabeForm(forms.ModelForm):
     datum = forms.DateField(label='Datum',initial=datetime.date.today)
+    mitbewohni = forms.ModelChoiceField(queryset=User.objects.all().exclude(is_superuser=True))
 
     class Meta:
         model = Ausgabe
-        fields = ["mitbewohni","datum","wert","an","notiz"]
-        labels = {
-        "mitbewohni": "Von"
-    }
+        fields = ["mitbewohni","datum","wert","notiz"]
 
 class AusgleichszahlungForm(forms.ModelForm):
     datum = forms.DateField(label='Datum', initial=datetime.date.today)
@@ -21,10 +19,7 @@ class AusgleichszahlungForm(forms.ModelForm):
 
     class Meta:
         model = Ausgabe
-        fields = ["mitbewohni","an","datum","wert"]
-        labels = {
-        "mitbewohni": "Von"
-        }
+        fields = ["mitbewohni","an","datum","wert", "notiz"]
 
 class LoginForm(forms.Form):
     username = forms.CharField(label="User Name", max_length=64)
