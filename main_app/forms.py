@@ -1,26 +1,30 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Ausgabe, Ausgleichszahlung
+from .models import Ausgabe
 
 from django.contrib.admin.widgets import AdminDateWidget
 import datetime
 
 class AusgabeForm(forms.ModelForm):
     datum = forms.DateField(label='Datum',initial=datetime.date.today)
-    mitbewohni = forms.ModelChoiceField(queryset=User.objects.all().exclude(is_superuser=True))
 
     class Meta:
         model = Ausgabe
-        fields = ["mitbewohni","datum","wert","notiz"]
+        fields = ["mitbewohni","datum","wert","an","notiz"]
+        labels = {
+        "mitbewohni": "Von"
+    }
 
 class AusgleichszahlungForm(forms.ModelForm):
     datum = forms.DateField(label='Datum', initial=datetime.date.today)
-    von = forms.ModelChoiceField(queryset=User.objects.all().exclude(is_superuser=True))
     an = forms.ModelChoiceField(queryset=User.objects.all().exclude(is_superuser=True))
 
     class Meta:
-        model = Ausgleichszahlung
-        fields = ["von","an","datum","wert"]
+        model = Ausgabe
+        fields = ["mitbewohni","an","datum","wert"]
+        labels = {
+        "mitbewohni": "Von"
+        }
 
 class LoginForm(forms.Form):
     username = forms.CharField(label="User Name", max_length=64)

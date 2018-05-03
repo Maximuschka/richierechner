@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect,HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from .models import Ausgabe,Ausgleichszahlung
+from .models import Ausgabe
 from .forms import AusgabeForm, AusgleichszahlungForm, LoginForm, OverviewForm
 from .richierechner import *
 
@@ -25,12 +25,11 @@ def overview(request,notiz_ausgabe_id=None):
             ed = None
 
     mitbewohnis = User.objects.all().exclude(is_superuser=True)
+    anzahl_mbws = mitbewohnis.count()
     ausgaben = Ausgabe.objects.filter(datum__range=[sd, ed]).order_by("datum")
 
-    agzs = Ausgleichszahlung.objects.filter(datum__range=[sd, ed]).order_by("datum")
-
     summe_ausgaben = summiereAusgaben(ausgaben)
-    MBW_ausgaben = getMBWAusgabenDJANGO(mitbewohnis,ausgaben,agzs)
+    MBW_ausgaben = getMBWAusgabenDJANGO(mitbewohnis,ausgaben)
 
     summe_MBW_ausgaben = 0
     for item in MBW_ausgaben:
@@ -39,10 +38,9 @@ def overview(request,notiz_ausgabe_id=None):
     form = OverviewForm(initial={"start_datum":sd, "end_datum": ed})
 
     return render(request, "overview.html", {"form": form,
-                                                "mitbewohnis":mitbewohnis,
+                                                "anzahl_mbws": anzahl_mbws,
                                                 "ausgaben": ausgaben,
                                                 "notiz_ausgabe_id": notiz_ausgabe_id,
-                                                "agzs": agzs,
                                                 "summe_ausgaben": summe_ausgaben,
                                                 "MBW_ausgaben": MBW_ausgaben,
                                                 "summe_MBW_ausgaben": summe_MBW_ausgaben})
@@ -54,34 +52,31 @@ def ausgabe(request,notiz_ausgabe_id=None):
 
     user = request.user
     mitbewohnis = User.objects.all().exclude(is_superuser=True)
+    anzahl_mbws = mitbewohnis.count()
     ausgaben = Ausgabe.objects.all().order_by("datum")
-    agzs = Ausgleichszahlung.objects.all().order_by("datum")
 
     form = AusgabeForm(initial={"mitbewohni":user})
 
     return render(request, "ausgabe.html",{"letzte_ausgaben": letzte_ausgaben,
+                                            "anzahl_mbws": anzahl_mbws,
                                             "notiz_ausgabe_id": notiz_ausgabe_id,
                                             "form": form})
 
 @login_required(login_url='/login/')
 def ausgleichszahlung(request):
-    letzte_agzs = Ausgleichszahlung.objects.filter().order_by("-datum")[:5]
-
     mitbewohnis = User.objects.all().exclude(is_superuser=True)
     ausgaben = Ausgabe.objects.all().order_by("datum")
-    agzs = Ausgleichszahlung.objects.all().order_by("datum")
     noetige_agzs = None
-    noetige_agzs = getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben,agzs)
+    noetige_agzs = getNoetigeAusgleichszahlungen(mitbewohnis,ausgaben)
 
     form = AusgleichszahlungForm()
-    return render(request, "ausgleichszahlung.html",{"letzte_agzs": letzte_agzs,
-                                                        "form": form,
+    return render(request, "ausgleichszahlung.html",{"form": form,
                                                         "noetige_agzs": noetige_agzs})
 
 @login_required(login_url='/login/')
 def profile(request,username):
     user = User.objects.get(username=username)
-    ausgaben = Ausgabe.objects.filter(mitbewohni=user)
+    ausgaben = Ausgabe.objects.filter(mitbewohni=user).order_by("datum")
     return render(request, "profile.html",{"username": username,
                                             "ausgaben": ausgaben})
 
@@ -110,9 +105,6 @@ def delete_agz(request,agz_id,origin_id):
         return HttpResponseRedirect("/ausgleichszahlung")
     if origin_id == "o":
         return HttpResponseRedirect("/")
-
-# def note_ausgabe(request,ausgabe_id,origin_id):
-
 
 def login_view(request):
     if request.method == "POST":

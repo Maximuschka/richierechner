@@ -3,7 +3,8 @@
 # from .models import Mitbewohni,Ausgabe,Ausgleichszahlung
 from decimal import Decimal
 import operator
-from .models import Ausgabe,Ausgleichszahlung
+from .models import Ausgabe
+
 
 def summiereAusgaben(ausgaben):
     summe_ausgaben = 0
@@ -30,21 +31,19 @@ def getMBWAusgabenDJANGO(mitbewohnis=[],ausgaben=[],agzs=[]):
         MBW_ausgaben.append((MBW.username,dummy_ausgaben))
     return MBW_ausgaben
 
-def getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben=[],agzs=[]):
+def getNoetigeAusgleichszahlungen(mitbewohnis,ausgaben=[],agzs=[]):
     book = {}
     for mitbewohni in mitbewohnis:                                      #Alle Mitbewohnis erhalten einen Saldoeintrag = 0
         book[mitbewohni] = 0
     for ausgabe in ausgaben:                                            #Saldoberechnung AUSG - Jede Ausgabe wird einem mitbewohni als Kredit zugeordnet (Anteil * Anzahl der anderen MBWs)
+        ausgabe_mbws = ausgabe.an.all()
         ausgabe.wert = float(ausgabe.wert)
-        anteil = ausgabe.wert / len(mitbewohnis)
-        book[ausgabe.mitbewohni] += anteil * (len(mitbewohnis)-1)
-        for mitbewohni in mitbewohnis:                                  #Jede Ausgabe wird den verbleibenden mitbewohnis als anteilige Schuld zugeordnet
-            if mitbewohni != ausgabe.mitbewohni:
+        anteil = ausgabe.wert / len(ausgabe_mbws)
+        for mitbewohni in ausgabe_mbws:
+            if mitbewohni == ausgabe.mitbewohni:
+                book[mitbewohni] += (ausgabe.wert - anteil)
+            else:
                 book[mitbewohni] -= anteil
-                book[mitbewohni] = book[mitbewohni]
-    for agz in agzs:                                                    #Saldoberechnung AGZ - Jede agz wird als Kredit bzw. Schuld dem jeweilige mitbewohni zugeordnet
-        book[agz.von] += float(agz.wert)
-        book[agz.an] -= float(agz.wert)
     noetige_agzs = []
     for mitbewohni in mitbewohnis:
         if book[mitbewohni] < 0:
@@ -84,11 +83,12 @@ if __name__ == "__main__":
     class Ausgabe():
 
 
-        def __init__(self, datum, wert, mitbewohni,notiz):
+        def __init__(self, datum, wert, mitbewohni,an,notiz):
 
             self.datum = datum
             self.wert = wert
             self.mitbewohni = mitbewohni
+            self.an = an
             self.notiz = notiz
 
     class Mitbewohni():
@@ -110,10 +110,12 @@ if __name__ == "__main__":
     m3 = Mitbewohni("Lue","jess@richie.nk")
 
     mitbewohnis = [m1,m2,m3]
+    an1 = [m1,m2,m3]
+    an2 = [m1,m3]
 
-    a1 = Ausgabe("date",18.15,m1,"leer")
-    a2 = Ausgabe("date",7.93,m2,"leer")
-    a3 = Ausgabe("date",67,m3,"leer")
+    a1 = Ausgabe("date",30,m1,an1,"leer")
+    a2 = Ausgabe("date",20,m2,an2,"leer")
+    a3 = Ausgabe("date",30,m3,an1,"leer")
 
     ausgaben = [a1,a2,a3]
 
@@ -123,5 +125,5 @@ if __name__ == "__main__":
     agzs = [ag1,ag2]
 
     # getAnteil(ausgaben,3)
-    getNoetigeAusgleichszahlungen2(mitbewohnis,ausgaben,agzs)
+    getNoetigeAusgleichszahlungen(mitbewohnis,ausgaben)
 
